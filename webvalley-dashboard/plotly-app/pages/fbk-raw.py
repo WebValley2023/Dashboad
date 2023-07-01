@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 import time
 from dash import html, dcc, Input, Output, callback, State, callback_context, DiskcacheManager
+=======
+from dash import html, dcc, Input, Output, callback, State, callback_context
+>>>>>>> Stashed changes
 from db_utils import load_data_from_psql
 from datetime import datetime
 from .utils import utils, querys
@@ -25,11 +29,14 @@ cache = Cache(dash.get_app().server, config={
     'CACHE_DIR': 'cache-directory'
 })
 
+<<<<<<< Updated upstream
 import diskcache
 cache_disk = diskcache.Cache("./cache_disk")
 background_callback_manager = DiskcacheManager(cache_disk)
 
 
+=======
+>>>>>>> Stashed changes
 """
 cache = Cache(dash.get_app().server, config={
     # try 'filesystem' if you don't want to setup redis
@@ -49,13 +56,21 @@ def get_data_hours() -> pd.DataFrame:
 @cache.memoize(timeout=1800) #cached 30 min
 def get_data_day() -> pd.DataFrame:
     print("NOT CACHED DAY")
+<<<<<<< Updated upstream
     fbk_data = load_data_from_psql(querys.query_day)
+=======
+    fbk_data=  load_data_from_psql(querys.query_day)
+>>>>>>> Stashed changes
     return utils.filter_fbk_data(fbk_data)
 
 @cache.memoize(timeout=3600) #cached 1 hour
 def get_data_week() -> pd.DataFrame:
     print("NOT CACHED WEEK")
+<<<<<<< Updated upstream
     fbk_data = load_data_from_psql(querys.query_week_avg)
+=======
+    fbk_data=  load_data_from_psql(querys.query_week_avg)
+>>>>>>> Stashed changes
     return utils.filter_fbk_data(fbk_data)
 
 @cache.memoize(timeout=864000)#cached 1 day
@@ -64,8 +79,12 @@ def get_data_month() -> pd.DataFrame:
     fbk_data = load_data_from_psql(querys.query_month_avg)
     return utils.filter_fbk_data(fbk_data)
 
+<<<<<<< Updated upstream
 #@cache.memoize(timeout=604800) #cached 7 day
 @cache.memoize(timeout=600)
+=======
+@cache.memoize(timeout=604800) #cached 7 day  
+>>>>>>> Stashed changes
 def get_data_6months() -> pd.DataFrame:
     print("NOT CACHED 6_MONTHS")
     fbk_data = load_data_from_psql(querys.query_6moths_avg_node_1)
@@ -165,10 +184,13 @@ download_btn = dbc.Button(
 )
 download_it = dcc.Download(id="download-fbk-raw")
 
+<<<<<<< Updated upstream
 loading_background_cache = dcc.Loading(
             id="loading",
             type="default",
 )
+=======
+>>>>>>> Stashed changes
 
 dropdown_period = dcc.Dropdown(
     periods, id="selected-period", className="dropdown", value=periods[4]
@@ -219,7 +241,11 @@ def make_btn_fscreen(id :str):
                 )
 
 header = html.Div(
+<<<<<<< Updated upstream
     [title, loading_background_cache, download_btn, download_it, sensors_wrapper, dropdown_wrapper,  popovers_wrapper], className="section-header"
+=======
+    [title, download_btn, download_it, sensors_wrapper, dropdown_wrapper,  popovers_wrapper], className="section-header"
+>>>>>>> Stashed changes
 )
 
 
@@ -228,7 +254,10 @@ header = html.Div(
     Input("btn_fbk_raw", "n_clicks"),
     prevent_initial_call=True,
 )
+<<<<<<< Updated upstream
 @cache.memoize(timeout=864000)#cached 1 day
+=======
+>>>>>>> Stashed changes
 def create_download_file(n_clicks):
     
     """global fbk_data
@@ -237,6 +266,7 @@ def create_download_file(n_clicks):
 
 
 @callback(
+<<<<<<< Updated upstream
         Output("interval-component", "n_intervals"),
         [Input("selected-station", "value"), Input('interval-component', 'n_intervals')],
         background=True,
@@ -248,6 +278,8 @@ def background_cache(value, n_intervals):
     print("CACHED")
 
 @callback(
+=======
+>>>>>>> Stashed changes
     [
         Output("card-S1","className"),Output("card-S2","className"),
         Output("card-S3","className"),Output("card-S4","className"),
@@ -652,7 +684,12 @@ def toggle_modal(heater_fs,volt_fs, bosch_fs, is_open, heater_plot, volt_plot, b
     return [None, is_open]
 
 
+<<<<<<< Updated upstream
 modal_chart = dbc.Modal(
+=======
+
+modal = dbc.Modal(
+>>>>>>> Stashed changes
             [
                 dbc.ModalHeader(close_button=True),
                 dbc.ModalBody(dcc.Graph(id="modal-body",style={"height":"55vh",},)),
@@ -663,6 +700,7 @@ modal_chart = dbc.Modal(
             is_open=False,
         )
 
+<<<<<<< Updated upstream
 @callback(
     output=Output("interval-component", "interval"),
     inputs=Input("interval-component", "n_intervals"),
@@ -682,6 +720,12 @@ layout = html.Div(
         header,
         html.Progress(id="progress_bar", value="0"),
         modal_chart,
+=======
+layout = html.Div(
+    [
+        header,
+        modal,
+>>>>>>> Stashed changes
         dbc.Row(
             [
                 dbc.Col(
@@ -749,11 +793,14 @@ layout = html.Div(
                             style=dict(height="25vh"),
                         ),],
                     width=4),
+<<<<<<< Updated upstream
                     dcc.Interval(
                         id='interval-component',
                         interval=1000*300, # in milliseconds
                         n_intervals=0
                     )
+=======
+>>>>>>> Stashed changes
                     #],
                     #md=5,
                     #lg=5,
