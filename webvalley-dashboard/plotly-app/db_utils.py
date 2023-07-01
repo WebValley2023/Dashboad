@@ -5,11 +5,8 @@ def load_data_from_psql(query: str, columns=None, **kwargs) -> pd.DataFrame:
     # todo: reuse connection maybe?
     with psycopg2.connect(
         database="webvalley2022", user='postgres',
-<<<<<<< Updated upstream
+        # pay attention that the password may be wrong
         password='postgres',
-=======
-        password='WVpass2023',
->>>>>>> Stashed changes
         host='localhost', port='5432'
     ) as conn:
         with conn.cursor() as curs:

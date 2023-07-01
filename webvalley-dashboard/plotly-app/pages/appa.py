@@ -83,12 +83,8 @@ dash.register_page(__name__)
 
 stations = list(load_data_from_psql("select distinct stazione from appa_data;").stazione)
 
-<<<<<<< Updated upstream
-
-=======
-stations = stations +['ss','aa','bb']
+stations = stations + ['ss','aa','bb']
 print(stations)
->>>>>>> Stashed changes
 limit_pollutants = {
     'NO2' : 200,
     'PM10' : 50,
@@ -668,11 +664,7 @@ dropdown_weekday = dcc.Dropdown(
 
 title = html.Div("APPA Data", className="header-title", style={'text-align':'center'})
 dropdown = dcc.Dropdown(
-<<<<<<< Updated upstream
-    stations, id="selected-appa-station", className="dropdown", value=stations[1]
-=======
     stations, id="selected-appa-station", className="dropdown", value=stations[3]
->>>>>>> Stashed changes
 )
 download_btn = dbc.Button(
     [html.I(className="fa-solid fa-download"), " Download full data"],
