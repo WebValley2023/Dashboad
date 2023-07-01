@@ -1,0 +1,12 @@
+dash
+dash_bootstrap_components
+dash_daq
+pandas
+matplotlib
+seaborn
+dash_daq
+soupsieve
+bs4
+sklearn
+psycopg2
+gunicorn

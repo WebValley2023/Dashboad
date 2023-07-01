@@ -1,0 +1,257 @@
+* {
+  margin: 0;
+}
+
+html {
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-size: 0.6vw;
+}
+
+.section {
+  /*background-color: #eff4f9;*/
+  /*background-color: #F2F2F2;*/
+  /*padding-top: 2%;*/
+  padding-left: 1%;
+  height: 100%;
+}
+
+.btn {
+  border-radius: 10px;
+}
+
+.dropdown {
+  color: black;
+  font-size: 14px;
+}
+
+.radioitems{ 
+  font-size: 14px;
+  color: black;
+}
+
+.graph-dropdown {
+  flex-grow: 3;
+  margin-left: 2%;
+  margin-right: 40%;
+  margin-top: 2%;
+  font-weight: 600;
+}
+
+.toggle {
+  margin-top: 2%;
+  margin-right: 2%;
+  font-weight: 600;
+}
+
+.fbk-main-plot {
+  background-color: white;
+  padding: 2%;
+  height: 70%;
+}
+
+.content {
+  height: 100%;
+  background-color: #fbfcfe;
+}
+
+.transparent {
+  background-color: transparent;
+}
+
+.fullHeightAndPadding {
+  height: 90vh;
+}
+
+
+.dropdownWrapper {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-around;
+  margin: 0 0 20px 0;
+}
+
+.dropdownWrapper > * {
+  width: 45%;
+}
+/*
+.DateRangePicker{
+  float: right;
+}*/
+
+.right{
+  display: flex;
+  flex-flow: row;
+  /*justify-content: flex-end;*/
+  justify-content: center;
+}
+
+.pretty_container {
+  /*box-shadow:0px 1px 3px rgba(0,0,0,0.12), 0px 1px 2px rgba(0,0,0,0.24);*/
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius:15px;
+  border:1px solid;
+  border-color:rgba(0, 0, 0, 0.175);
+  background-color: white;
+}
+.toast-body > * {
+  margin-bottom: 15px;
+}
+
+/*override padding from lib*/
+.DateRangePickerInput__showClearDates{ 
+  padding-right : 0px;
+  border:1px solid #ccc;
+}
+
+.wrapper-sersors{
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.row {
+  --bs-gutter-y: 0rem;
+  margin-top: calc(-1 * var(--bs-gutter-y) + 0.5rem);
+}
+
+.toast {
+  --bs-toast-border-radius: 15px;
+}
+
+.card-sensors {
+  box-shadow : 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --bs-card-border-radius: 50%;
+  width: 3.5rem;
+  height:3.5rem;
+  margin-right:2rem;
+  
+  --bs-card-border-width : 0px;
+  
+  transition: .3s;
+  cursor: pointer;
+
+}
+.card-body {
+  background-color: white;
+  border-radius: 50%;
+  margin: 1px;
+  padding: 0px;
+}
+
+
+.card-sensors:before {
+  content: "";
+  position: absolute;
+  inset: 0px;
+  padding: 3px;
+  border-radius: 50%; 
+  background: conic-gradient(
+    #0000 ,       
+    #0000,
+    #0000
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: intersect
+}
+
+.card-sensors-green:before {
+  background: conic-gradient(
+     #0000 ,       
+    #0fd850,
+    #0fd850
+  );
+}
+
+.card-sensors-red:before {
+  background: conic-gradient(
+    #0000 ,       
+    red,
+    red
+  );
+}
+
+
+.card-sensors:after {
+  content: "";
+  position: absolute;
+  inset: 0px;
+  filter: blur(120px);
+  opacity: .5;
+}
+/*
+.card-sensors:before,
+.card-sensors:after {
+  transition:.5s, 99999s 99999s transform ;
+}*/
+
+.card-sensors:hover {
+  transform: scale(1.15);
+}
+
+/*
+.card-sensors:hover:before,
+.card-sensors:hover:after {
+  transform: rotate(360deg) ;
+  transition: .5s, 1s linear transform;
+  
+}*/
+
+
+
+.card-sensors:before,
+.card-sensors:after {
+  animation: rotate 20s linear infinite;
+  transition: .5s;
+}
+
+.card-sensors:hover {
+  transform: scale(1.15);
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+
+.card-sensors:before {
+  background-color: white;
+  
+}
+
+.full-screen{
+  position: relative;
+  float: right;
+  margin-right: 12px;
+  margin-top: 12px;
+  background-color: transparent;
+  border: 0px;
+  z-index: 1;
+  padding: 0;
+  --bs-btn-active-bg: transparent;
+}
+
+.full-screen:hover{
+  transform: scale(1.10);
+  background-color: transparent;
+}
+
+.full-screen:focus-visible{
+  background-color: transparent;
+  border: 0px;
+  box-shadow: none;
+}
+
+.fullscreen-modal{
+  max-width: 90%;
+}
