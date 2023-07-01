@@ -6,6 +6,12 @@ WebValley 2023 Computer Science #3 Challenge :bar_chart:
 - Creating a dashboard for visualizating data from appa and FBK sensors
 
 **:man: Team members**
+- SHOWBIK SHOWMMA
+- CHILIANO ARCARESE
+- MURILO HADAD
+- FRANCESCO PELOSI
+- LEONARDO CASAROTTO
+
 
 **:pager: Concepts & missions**
 - Raw data
