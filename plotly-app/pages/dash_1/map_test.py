@@ -6,7 +6,7 @@ import pandas as pd
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "Testing"
 
-df = pd.read_csv('/home/wvuser/webvalley-dashboard/plotly-app/map.json')
+df = pd.read_csv('/plotly-app/pages/map.json')
 
 modal = html.Div(
     [

@@ -14,6 +14,7 @@ import os
 import dash_daq as daq
 
 from flask_caching import Cache
+import js2py
 
 ##################
 # SECTION 1 PAGE #
@@ -677,11 +678,132 @@ def update_progress(set_progress, n_clicks):
         set_progress((str(i), str(total)))
         time.sleep(0.3)
 
+df = pd.read_csv('./plotly-app/assets/map.json')
+modal = html.Div(
+    [
+        dbc.Button("Open modal", id="open", n_clicks=0, className=".btn"),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Click a point to see the data"), className="modal-header"),
+                dbc.ModalBody(dcc.Graph(id='figure')),
+            ],
+            id="modal-map",
+            is_open=True,
+            centered=True,
+            size="lg",
+        ),
+    ]
+)
+
+
+@callback(
+    Output("modal-map", "is_open"),
+    Input("open", "n_clicks"),
+    State("modal-map", "is_open")
+)
+def toggle_modal(n_clicks, is_open):
+    if n_clicks:
+        return not is_open
+    return is_open
+
+"""
+@callback(
+    Output("selected-station", "value"),
+    Input("figure", "n_clicks"),
+    State("modal-map", "is_open"),
+)
+def select_station(n_clicks, is_open):
+
+    if n_clicks:
+        return not is_open
+
+@callback(
+    Output("figure", "figure"),
+    Input("modal-map", "is_open")
+)
+def update_graph(is_open):
+    if is_open:
+        italy_geojson = 'https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/italy_regions.geojson'
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scattermapbox(
+            mode='markers',
+            lon=[11.11022, 11.1262],  # Longitude of the specific places
+            lat=[46.10433, 46.06292],  # Latitude of the specific places
+            marker=dict(
+                size=[16, 20],  # Size of the dots
+                color='green',    # Color of the dots
+                opacity=1,      # Make the dots fully visible
+            ),
+            text=['Via Bolzano', 'S.Chiaro'],  # Text to display on the dots
+            hoverinfo='text',  # Remove hover information
+             hoverlabel=dict(
+                font=dict(
+                    size=20  # Set the font size of the hover text
+                )
+            )
+            
+        ))
+        
+        
+
+        fig.update_layout(
+            title_text='',
+            mapbox_style='carto-positron',
+            mapbox_zoom=9,
+            mapbox_center={"lat": 46.069425, "lon": 11.13568},
+            width=1000,
+            height=600,
+            mapbox=dict(
+                layers=[
+                    dict(
+                        sourcetype='geojson',
+                        source=italy_geojson,
+                        type='fill',
+                        color='rgba(0,0,0,0)'
+                    )
+                ]
+            )
+        )
+
+        return fig
+
+    return go.Figure()
+"""
+
+code_2 = """
+    var mymap = L.map('mymap').setView([49.0, 8.4], 5);
+    mymap.addControl(new L.Control.Fullscreen());
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        maxZoom: 18
+    }).addTo(mymap);
+    L.stam({
+        baseUrl: "https://airquality-frost.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1",
+        cluster: true,
+        clusterMin: 10,
+        queryObject: {
+            entityType: 'Things'
+        }
+    }).addTo(mymap);
+      plot: {
+            startDate: new Date(Date.now() - 1000*60*60*24*30),
+            endDate: new Date()
+        }
+"""
+
+res_2 = js2py.eval_js(code_2)
+  
+print(res_2(5))
+
 layout = html.Div(
     [
         header,
         html.Progress(id="progress_bar", value="0"),
         modal_chart,
+        dcc.Graph(map),
+        modal,
         dbc.Row(
             [
                 dbc.Col(

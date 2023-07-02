@@ -255,3 +255,19 @@ html {
 .fullscreen-modal{
   max-width: 90%;
 }
+
+#modal-map{
+  max-width: 900rem;
+  margin: 100px;
+  position: fixed;
+  top: 50%; 
+  left: 50%;
+  transform: translate(-60%, -60%);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}

@@ -84,7 +84,7 @@ dash.register_page(__name__)
 stations = list(load_data_from_psql("select distinct stazione from appa_data;").stazione)
 
 stations = stations + ['ss','aa','bb']
-print(stations)
+#print(stations)
 limit_pollutants = {
     'NO2' : 200,
     'PM10' : 50,
