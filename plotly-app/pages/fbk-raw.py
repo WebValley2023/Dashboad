@@ -664,21 +664,7 @@ modal_chart = dbc.Modal(
             is_open=False,
         )
 
-@callback(
-    output=Output("interval-component", "interval"),
-    inputs=Input("interval-component", "n_intervals"),
-    progress=[Output("progress_bar", "value"), Output("progress_bar", "max")],
-    background=True,
-    manager=background_callback_manager,
-    prevent_initial_call=False
-)
-def update_progress(set_progress, n_clicks):
-    total = 30
-    for i in range(total + 1):
-        set_progress((str(i), str(total)))
-        time.sleep(0.3)
-
-df = pd.read_csv('./plotly-app/assets/map.json')
+df = pd.read_csv('/home/wvuser/Dashboad/plotly-app/assets/map.json')
 modal = html.Div(
     [
         dbc.Button("Open modal", id="open", n_clicks=0, className=".btn"),
@@ -695,7 +681,7 @@ modal = html.Div(
     ]
 )
 
-
+'''
 @callback(
     Output("modal-map", "is_open"),
     Input("open", "n_clicks"),
@@ -706,7 +692,7 @@ def toggle_modal(n_clicks, is_open):
         return not is_open
     return is_open
 
-"""
+
 @callback(
     Output("selected-station", "value"),
     Input("figure", "n_clicks"),
@@ -770,40 +756,14 @@ def update_graph(is_open):
         return fig
 
     return go.Figure()
-"""
-
-code_2 = """
-    var mymap = L.map('mymap').setView([49.0, 8.4], 5);
-    mymap.addControl(new L.Control.Fullscreen());
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-        maxZoom: 18
-    }).addTo(mymap);
-    L.stam({
-        baseUrl: "https://airquality-frost.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1",
-        cluster: true,
-        clusterMin: 10,
-        queryObject: {
-            entityType: 'Things'
-        }
-    }).addTo(mymap);
-      plot: {
-            startDate: new Date(Date.now() - 1000*60*60*24*30),
-            endDate: new Date()
-        }
-"""
-
-res_2 = js2py.eval_js(code_2)
-  
-print(res_2(5))
-
+'''
 layout = html.Div(
     [
         header,
         html.Progress(id="progress_bar", value="0"),
         modal_chart,
-        dcc.Graph(map),
-        modal,
+        #dcc.Graph(map),
+        #modal,
         dbc.Row(
             [
                 dbc.Col(
