@@ -7,6 +7,7 @@ import dash
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
+
 app = Dash(
     __name__,
     use_pages=True,
@@ -18,7 +19,7 @@ sidebar = html.Div(
         html.Div(
             [
                 html.Img(src="/assets/img/logo_cut.png", style={"width": "5rem"}),
-                html.H2("Airwatching"), 
+                html.H2("Airwatching"),
             ],
             className="sidebar-header",
         ),
@@ -135,18 +136,26 @@ def update_popup_content(user_clicks, researcher_clicks):
 )
 def close_popup(researcher_clicks):
     if researcher_clicks > 0:
-        return False, {"display": "none"}, html.Div(
-            [
-                html.H1("Raw FBK Data"),
-                # Add your content specific to the "Raw FBK Data" page here
-                # For example, you can include dash components, tables, etc.
-            ]
+        return (
+            False,
+            {"display": "none"},
+            html.Div(
+                [
+                    html.H1("Raw FBK Data"),
+                    # Add your content specific to the "Raw FBK Data" page here
+                    # For example, you can include dash components, tables, etc.
+                ]
+            ),
         )
     return True, {"background-color": "rgba(0, 0, 0, 0.4)"}, ""
 
 
 @app.callback(
-    [Output("raw-data-link", "active"), Output("fitted-data-link", "active"), Output("appa-data-link", "active")],
+    [
+        Output("raw-data-link", "active"),
+        Output("fitted-data-link", "active"),
+        Output("appa-data-link", "active"),
+    ],
     [Input("url", "pathname")],
 )
 def update_active_links(pathname):
