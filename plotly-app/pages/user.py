@@ -15,6 +15,8 @@ pollutants = [
     dict(label="Nitrogen Dioxide", value="NO2"),
     dict(label="Ozone", value="O3"),
     dict(label="Carbon Monoxide", value="CO"),
+    dict(label="Particulate Matter 2.5", value="PM 2.5"),
+    dict(label="Particulate Matter 10", value="PM 10"),
 ]
 
 gas_btns = html.Div(
@@ -30,7 +32,7 @@ gas_btns = html.Div(
     className="radio-group",
 )
 
-progress_bars = html.Div(
+pollutants_bars = html.Div(
     [
         html.Div(
             [
@@ -91,7 +93,7 @@ info_icon = html.Div(
     [
         dbc.Tooltip("Click for Description", target="info-icon"),
         html.I(
-            className="fa-solid fa-info-circle fa-2x",
+            className="fa-solid fa-info-circle",
             id="info-icon",
             n_clicks=0,
             style={"cursor": "pointer"},
@@ -101,14 +103,9 @@ info_icon = html.Div(
 )
 
 toast = dbc.Toast(
-    [
-        html.Div(
-            className="title-container",
-        ),
-        progress_bars,
-    ],
+    [pollutants_bars,],
     id="pollutants",
-    header=[html.H4("Gas Pollutants", className="section-header"), info_icon],
+    header=[html.H4(["Gas Pollutants", info_icon], className="section-header"),],
     style={"height": "100%"},
 )
 
@@ -142,7 +139,7 @@ layout = html.Div(
 
 @callback(
     Output("popup-menu", "is_open"),
-    [Input("question-icon", "n_clicks"), Input("close-popup", "n_clicks")],
+    [Input("info-icon", "n_clicks"), Input("close-popup", "n_clicks")],
     [State("popup-menu", "is_open")],
 )
 def toggle_popup(n_clicks_open, n_clicks_close, is_open):
