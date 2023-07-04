@@ -12,13 +12,14 @@ import logging
 import dash
 import os
 import dash_daq as daq
+import plotly.express as px
 
 from flask_caching import Cache
-import js2py
 
-##################
-# SECTION 1 PAGE #
-##################
+
+###################
+# CACHE MANAGMENT #
+###################
 
 
 cache = Cache(dash.get_app().server, config={
@@ -66,7 +67,7 @@ def get_data_month() -> pd.DataFrame:
     return utils.filter_fbk_data(fbk_data)
 
 #@cache.memoize(timeout=604800) #cached 7 day
-@cache.memoize(timeout=600)
+@cache.memoize(timeout=30) #cached 10 min
 def get_data_6months() -> pd.DataFrame:
     print("NOT CACHED 6_MONTHS")
     fbk_data = load_data_from_psql(querys.query_6moths_avg_node_1)
@@ -90,6 +91,7 @@ def cache_fbk_data(selected_period: str)  -> pd.DataFrame:
     logging.info("Query time", datetime.now() - start)
     print("QUERY TIME: ", datetime.now() - start)
     return fbk_data
+
 
 
 def make_card_sensor(sensor : str):
@@ -132,10 +134,14 @@ LAST_CLICKED = None
 title = html.Div("Raw FBK Data", className="header-title",style={"text-align":"center","margin-bottom": "0.25rem"})
 
 periods = ["last 6 months", "last month", "last week", "last day", "last hour"]
-stations = ["Trento - S. Chiara", "Trento - via Bolzano"]
+stations = ["Trento - via Bolzano", "Trento - S. Chiara"]
+points = {
+    (11.11022, 46.10433): "Trento - via Bolzano",
+    (11.1262, 46.06292): "Trento - S. Chiara"
+}
 
 dropdown_station = dcc.Dropdown(
-    stations, id="selected-station", className="dropdown", value=stations[0]
+    stations, id="selected-station", className="dropdown", value=stations
 )
 
 date_range = dcc.DatePickerRange(
@@ -238,15 +244,15 @@ def create_download_file(n_clicks):
 
 
 @callback(
-        Output("interval-component", "n_intervals"),
-        [Input("selected-station", "value"), Input('interval-component', 'n_intervals')],
+        Output("interval-component", "max_intervals"),
+        [Input("interval-component", "n_intervals")],
         background=True,
         manager=background_callback_manager,
 )
-def background_cache(value, n_intervals):
+def background_cache(n_intervals):
     print("BACKGROUND CACHING")
     get_data_6months()
-    print("CACHED")
+    print("END BACKGROUD CACHING")
 
 @callback(
     [
@@ -436,7 +442,7 @@ def update_plots(selected_period, selected_station, yaxis_type, btn_date, histor
         #font=dict(size=10),
         title=dict(
             x=0.5,
-            text="Sensor Resistance (Ω)",
+            text="<br>Sensor Resistance (Ω)",
             xanchor="center",
             yanchor="top",
             font_family="Sans serif",
@@ -664,44 +670,14 @@ modal_chart = dbc.Modal(
             is_open=False,
         )
 
-df = pd.read_csv('/home/wvuser/Dashboad/plotly-app/assets/map.json')
-modal = html.Div(
-    [
-        dbc.Button("Open modal", id="open", n_clicks=0, className=".btn"),
-        dbc.Modal(
-            [
-                dbc.ModalHeader(dbc.ModalTitle("Click a point to see the data"), className="modal-header"),
-                dbc.ModalBody(dcc.Graph(id='figure')),
-            ],
-            id="modal-map",
-            is_open=True,
-            centered=True,
-            size="lg",
-        ),
-    ]
-)
-
-'''
-@callback(
-    Output("modal-map", "is_open"),
-    Input("open", "n_clicks"),
-    State("modal-map", "is_open")
-)
-def toggle_modal(n_clicks, is_open):
-    if n_clicks:
-        return not is_open
-    return is_open
 
 
-@callback(
-    Output("selected-station", "value"),
-    Input("figure", "n_clicks"),
-    State("modal-map", "is_open"),
-)
-def select_station(n_clicks, is_open):
+#############
+# MODAL MAP #
+#############
 
-    if n_clicks:
-        return not is_open
+# MAP #
+
 
 @callback(
     Output("figure", "figure"),
@@ -709,7 +685,6 @@ def select_station(n_clicks, is_open):
 )
 def update_graph(is_open):
     if is_open:
-        italy_geojson = 'https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/italy_regions.geojson'
 
         fig = go.Figure()
 
@@ -722,7 +697,7 @@ def update_graph(is_open):
                 color='green',    # Color of the dots
                 opacity=1,      # Make the dots fully visible
             ),
-            text=['Via Bolzano', 'S.Chiaro'],  # Text to display on the dots
+            text=stations,  # Text to display on the dots
             hoverinfo='text',  # Remove hover information
              hoverlabel=dict(
                 font=dict(
@@ -731,39 +706,92 @@ def update_graph(is_open):
             )
             
         ))
-        
-        
+
+        italy_geojson = """https://raw.githubusercontent.com/
+                        python-visualization/folium/master/
+                        examples/data/italy_regions.geojson"""
 
         fig.update_layout(
+            clickmode='event+select',
             title_text='',
             mapbox_style='carto-positron',
             mapbox_zoom=9,
             mapbox_center={"lat": 46.069425, "lon": 11.13568},
             width=1000,
             height=600,
-            mapbox=dict(
-                layers=[
+            mapbox=dict(layers=[
                     dict(
                         sourcetype='geojson',
                         source=italy_geojson,
                         type='fill',
                         color='rgba(0,0,0,0)'
                     )
-                ]
-            )
+                ])
         )
 
         return fig
-
     return go.Figure()
-'''
+
+
+# MODAL #
+
+df = pd.read_csv('./plotly-app/assets/map.json')
+modal_map = html.Div(
+    [
+        dbc.Button("Open map", id="open", n_clicks=0, className=".btn"),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Click a point to see the data"), className="modal-header"),
+                dbc.ModalBody([
+                    dcc.Graph(id='figure'),
+                    html.Div(id='click-output')
+                ]),
+            ],
+            id="modal-map",
+            is_open=True,
+            centered=True,
+            size="lg",
+        ),
+    ]
+)
+
+
+
+@callback(
+    [Output("modal-map", "is_open"), 
+     Output('click-output', 'children'),
+     Output('selected-station', 'value')],
+    [Input("open", "n_clicks"),
+     Input('figure', 'clickData')],
+    [State("modal-map", "is_open")]
+)
+def toggle_modal(n_open, clickData, is_open):
+    if n_open or clickData is not None:
+        new_is_open = not is_open
+        selected_station = stations[0]  # Default value
+        if clickData is not None:
+            lat = clickData['points'][0]['lat']
+            lon = clickData['points'][0]['lon']
+            coordinates = f'Clicked coordinates: Lat {lat}, Lon {lon}'
+            for point_lon, point_lat in points.keys():
+                if lon == point_lon and lat == point_lat:
+                    selected_station = points[(point_lon, point_lat)]  # Set the dropdown value based on the clicked point
+                    return new_is_open, coordinates, selected_station
+        return new_is_open, None, selected_station
+    return is_open, None, stations[0]
+
+
+
+##########
+# LAYOUT #
+##########
+
 layout = html.Div(
     [
         header,
         html.Progress(id="progress_bar", value="0"),
         modal_chart,
-        #dcc.Graph(map),
-        #modal,
+        modal_map,
         dbc.Row(
             [
                 dbc.Col(
@@ -773,12 +801,9 @@ layout = html.Div(
                             "displayModeBar": False,
                             "displaylogo": False,
                         },
-                        #style=dict(height="77vh"),
                         style={"height":"55vh",},
                         className="pretty_container",
                     ),
-                    #lg=7,
-                    #xl=8,
                 style={"width":"80%"}),
                 dbc.Col(
                     [
@@ -833,14 +858,9 @@ layout = html.Div(
                     width=4),
                     dcc.Interval(
                         id='interval-component',
-                        interval=1000*300, # in milliseconds
+                        interval=1000*120, # milliseconds
                         n_intervals=0
                     )
-                    #],
-                    #md=5,
-                    #lg=5,
-                    #xl=4,
-                #),
             ],
         ),
     ],
