@@ -38,6 +38,7 @@ sidebar = html.Div(
                     active="exact",
                     style={"text-align": "center"}
                 ),
+                html.Hr(className="sidebar-hr"),
                 dbc.NavLink(
                     [
                         html.I(className="fa-solid fa-square-poll-vertical fa-2x"),

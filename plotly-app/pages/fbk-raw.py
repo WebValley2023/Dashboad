@@ -735,7 +735,7 @@ def update_graph(is_open):
 
 # MODAL #
 
-df = pd.read_csv('/home/wvuser/Dashboad/plotly-app/assets/map.json')
+df = pd.read_csv('/home/wvuser/challenge-4/Dashboard/plotly-app/assets/map.json')
 modal_map = html.Div(
     [
         dbc.Button("Open map", id="open", n_clicks=0, className=".btn"),

@@ -1,5 +1,5 @@
 import dash
-from dash import html, dcc, dash_table
+from dash import html, dcc, dash_table, callback
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
@@ -87,32 +87,28 @@ popup_menu = dbc.Modal(
     size="lg",
 )
 
-question_icon = html.Div(
+info_icon = html.Div(
     [
-        dbc.Tooltip("Click for Description", target="question-icon"),
+        dbc.Tooltip("Click for Description", target="info-icon"),
         html.I(
-            className="fa-solid fa-question-circle",
-            id="question-icon",
+            className="fa-solid fa-info-circle fa-2x",
+            id="info-icon",
             n_clicks=0,
             style={"cursor": "pointer"},
         ),
     ],
-    className="question-icon-container",
+    className="info-icon-container",
 )
 
 toast = dbc.Toast(
     [
         html.Div(
-            [
-                html.H4("Gas Pollutants", className="section-header"),
-                question_icon,
-            ],
             className="title-container",
         ),
         progress_bars,
     ],
     id="pollutants",
-    header=html.P([html.I(className="fa-solid fa-gear"), " Settings"]),
+    header=[html.H4("Gas Pollutants", className="section-header"), info_icon],
     style={"height": "100%"},
 )
 
@@ -126,13 +122,25 @@ layout = html.Div(
             className="dropdown",
         ),
         gas_btns,
-        toast,
+        dbc.Row(
+            [
+                dbc.Col(
+                    [toast],
+                    width=4),
+                dbc.Col(
+                    [toast],
+                    width=4),
+                dbc.Col(
+                    [toast],
+                    width=4),
+            ],
+        ),
         popup_menu,
-    ]
+    ],   
 )
 
 
-@app.callback(
+@callback(
     Output("popup-menu", "is_open"),
     [Input("question-icon", "n_clicks"), Input("close-popup", "n_clicks")],
     [State("popup-menu", "is_open")],
