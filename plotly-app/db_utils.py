@@ -6,7 +6,7 @@ def load_data_from_psql(query: str, columns=None, **kwargs) -> pd.DataFrame:
     with psycopg2.connect(
         database="webvalley2022", user='postgres',
         # pay attention that the password may be wrong
-        password='postgres',
+        password='WVpass2023',
         host='localhost', port='5432'
     ) as conn:
         with conn.cursor() as curs:
