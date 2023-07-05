@@ -83,7 +83,7 @@ dash.register_page(__name__)
 
 stations = list(load_data_from_psql("select distinct stazione from appa_data;").stazione)
 
-stations = stations + ['ss','aa','bb']
+stations = stations
 #print(stations)
 limit_pollutants = {
     'NO2' : 200,
@@ -209,7 +209,7 @@ def plot_compare_years(start_date, end_date, selected_appa_station, pollutant):
             x=0.5,
             xanchor="center",
             yanchor="top",
-            font_size=18,
+            font_size=16,
         ),
         modebar=dict(
             bgcolor="#ffffff"
@@ -471,7 +471,6 @@ def update_main_plot(selected_appa_station: str, start_date, end_date, selected_
             x=0.5,
             xanchor="center",
             yanchor="top",
-            font_family="Sans serif",
             font_size=14,
         ),
         modebar=dict(
@@ -528,7 +527,6 @@ def update_main_plot(selected_appa_station: str, start_date, end_date, selected_
             y=0.95,
             xanchor="center",
             yanchor="top",
-            font_family="Sans serif",
             font_size=14,
         ),
         modebar=dict(
@@ -654,7 +652,7 @@ def create_card_limit(pollutant, station, year):
 periods = ["all data","last year","last 6 months", "last month", "last week", "last day"]
 
 dropdown_period = dcc.Dropdown(
-    periods, id="selected-appa-period", className="dropdown", value=periods[4]
+    periods, id="selected-appa-period", className="dropdown", value=periods[0]
 )
 years = [y for y in range( date.today().year - 10, date.today().year + 1)]
 years.append('All years')
@@ -664,7 +662,7 @@ dropdown_weekday = dcc.Dropdown(
 
 title = html.Div("APPA Data", className="header-title", style={'text-align':'center'})
 dropdown = dcc.Dropdown(
-    stations, id="selected-appa-station", className="dropdown", value=stations[3]
+    stations, id="selected-appa-station", className="dropdown", value=stations[0]
 )
 download_btn = dbc.Button(
     [html.I(className="fa-solid fa-download"), " Download full data"],
@@ -704,23 +702,23 @@ date_range = dcc.DatePickerRange(
     end_date_placeholder_text="End Period",
     clearable=True,
 )
-    
+
 toast = dbc.Toast(
-                    [
-                        html.H4("Filter by:",style={"font-weight":"bold"}),
-                        dropdown_period,
-                        date_range,
-                        search,
-                        dcc.Checklist(options=[' Show comparison over years'], id="check_years", style={"font-size": "14px"}),
-                        html.Hr(),
-                        html.H5("Weekday year:",style={"font-weight":"bold"}),
-                        dropdown_weekday,
-                    ],
-                    id="toast",
-                    header=html.P([html.I(className="fa-solid fa-gear"), " Settings"]),
-                    #body_style={"margin-bottom":"2rem"},
-                    style={"height":"100%"}
-                )
+    [
+        html.H4("Filter by:",style={"font-weight":"bold"}),
+        dropdown_period,
+        date_range,
+        search,
+        dcc.Checklist(options=[' Show comparison over years'], id="check_years", style={"font-size": "14px"}),
+        html.Hr(),
+        html.H5("Weekday year:",style={"font-weight":"bold"}),
+        dropdown_weekday,
+    ],
+    id="toast",
+    header=html.P([html.I(className="fa-solid fa-gear"), " Settings"]),
+    #body_style={"margin-bottom":"2rem"},
+    style={"height":"100%"}
+)
 
 
 gas_btns = html.Div(dbc.RadioItems(id='selected-pollutant'),id="appa-pollutants", className="radio-group ",style={'display': 'flex', 'justify-content': 'space-around'})

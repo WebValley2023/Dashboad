@@ -32,12 +32,7 @@ pollutants = [
     dict(label="Carbon Monoxide", value="CO"),
 ]
 
-title = html.Div("Fitted FBK Data", className="header-title")
-
-# build dropdown of stations
-dropdown = dcc.Dropdown(
-    fbk_stations, id="selected-station", className="dropdown", value=fbk_stations[0]
-)
+title = html.Div("Fitted FBK Data", className="header-title", style={"text-align":"center","margin-bottom": "0.25rem"})
 
 download_btn = dbc.Button(
     [html.I(className="fa-solid fa-download"), " Download full data"],
@@ -72,23 +67,28 @@ gas_btns = html.Div(
     className="radio-group",
 )
 
+# build dropdown of stations
+dropdown = dcc.Dropdown(
+    fbk_stations, id="selected-station", className="dropdown", value=fbk_stations[0]
+)
+dropdown_wrapper = html.Div(
+    [dropdown,], className="dropdownWrapper",
+)
+
 header = html.Div(
-    [title, dropdown, download_btn, download_it, gas_btns], className="section-header"
+    [title, dropdown_wrapper, gas_btns, download_btn, download_it], className="section-header"
 )
 
 graph_selectors = html.Div(
     [
         html.Div(
-            [
-                "Display: ",
-                dcc.Dropdown(
-                    id="selected-period",
-                    options=["last 24h", "last week", "last month", "last year", "all"],
-                    className="dropdown",
-                    value="last week",
-                ),
-            ],
-            className="graph-dropdown",
+            dcc.Dropdown(
+                id="selected-period",
+                options=["last 24h", "last week", "last month", "last year", "all"],
+                value="last week",
+                className="dropdown"
+            ),
+            className="dropdownWrapper",
         ),
         daq.ToggleSwitch(
             id="toggle-comparison",
@@ -98,7 +98,7 @@ graph_selectors = html.Div(
             value=True,
         ),
     ],
-    className="d-flex flex-grow justify-content-between",
+    # className="d-flex justify-content-between",
 )
 
 comparison_graph = html.Div(
@@ -111,8 +111,8 @@ comparison_graph = html.Div(
                 "displaylogo": False,
             },
         ),
-        graph_selectors,
-    ]
+    ],
+    className="pretty_container",
 )
 
 
@@ -178,15 +178,24 @@ def update_comparison_graph(
     fig.update_layout(
         margin=dict(l=5, r=5, t=20, b=0),
         plot_bgcolor="white",
+        paper_bgcolor="rgba(0,0,0,0)",
         title=dict(
             x=0.5,
             text=title,
-            font_family="Sans serif",
             xanchor="center",
             yanchor="top",
         ),
+        legend={
+            "x": 0,
+            "y": 1,
+            "yanchor": "bottom",
+            "xanchor": "left",
+            "orientation": "h",
+            "bgcolor": "rgba(0,0,0,0)",
+        }
     )
     fig.update_yaxes(title_text="Value", fixedrange=True)
+    fig.update_layout(modebar=dict(bgcolor="#ffffff"))
 
     return fig
 
@@ -248,6 +257,6 @@ def get_mean(
 
 
 layout = html.Div(
-    [header, html.Div([comparison_graph], className="fbk-main-plot")],
+    [header, html.Div([comparison_graph, graph_selectors,], className="fbk-main-plot")],
     className="section fullHeight",
 )

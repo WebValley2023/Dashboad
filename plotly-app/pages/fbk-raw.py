@@ -1,4 +1,3 @@
-import time
 from dash import html, dcc, Input, Output, callback, State, callback_context, DiskcacheManager
 from db_utils import load_data_from_psql
 from datetime import datetime
@@ -12,7 +11,6 @@ import logging
 import dash
 import os
 import dash_daq as daq
-import plotly.express as px
 
 from flask_caching import Cache
 
@@ -66,8 +64,7 @@ def get_data_month() -> pd.DataFrame:
     fbk_data = load_data_from_psql(querys.query_month_avg)
     return utils.filter_fbk_data(fbk_data)
 
-#@cache.memoize(timeout=604800) #cached 7 day
-@cache.memoize(timeout=30) #cached 10 min
+@cache.memoize(timeout=604800) #cached 7 day
 def get_data_6months() -> pd.DataFrame:
     print("NOT CACHED 6_MONTHS")
     fbk_data = load_data_from_psql(querys.query_6moths_avg_node_1)
@@ -126,12 +123,13 @@ def saturated(station):
             d[s]= True
         else:
             d[s]= False
+    print(d)
     return d
     
 
 LAST_CLICKED = None
 
-title = html.Div("Raw FBK Data", className="header-title",style={"text-align":"center","margin-bottom": "0.25rem"})
+title = html.Div("Raw FBK Data", className="header-title", style={"text-align":"center","margin-bottom": "0.25rem"})
 
 periods = ["last 6 months", "last month", "last week", "last day", "last hour"]
 stations = ["Trento - via Bolzano", "Trento - S. Chiara"]
@@ -172,13 +170,8 @@ download_btn = dbc.Button(
 )
 download_it = dcc.Download(id="download-fbk-raw")
 
-loading_background_cache = dcc.Loading(
-            id="loading",
-            type="default",
-)
-
 dropdown_period = dcc.Dropdown(
-    periods, id="selected-period", className="dropdown", value=periods[4]
+    periods, id="selected-period", className="dropdown", value=periods[0]
 )
 
 dropdown_wrapper = html.Div(
@@ -196,27 +189,27 @@ popovers_wrapper = html.Div(
 
 
 toast = dbc.Toast(
-                    [
-                        html.H4("Filter by:",style={"font-weight":"bold"}),
-                        dropdown_period,
-                        date_range,
-                        search,
-                        #html.Br(),
-                        daq.ToggleSwitch(
-                            id="yaxis-type",
-                            label=["Linear","Log"],
-                            color="#9B51E0",
-                            size=40,
-                            value=False
-                        ),
-                        dcc.Checklist(options=[' Show history changes'], id="check_history", style={"font-size": "14px"}),
-                
-                    ],
-                    id="toast",
-                    header=html.P([html.I(className="fa-solid fa-gear"), " Settings"]),
-                    #body_style={"margin-bottom":"2rem"},
-                    style={"height":"100%"}
-                )
+    [
+        html.H4("Filter by:",style={"font-weight":"bold"}),
+        dropdown_period,
+        date_range,
+        search,
+        #html.Br(),
+        daq.ToggleSwitch(
+            id="yaxis-type",
+            label=["Linear","Log"],
+            color="#9B51E0",
+            size=40,
+            value=False
+        ),
+        dcc.Checklist(options=[' Show history changes'], id="check_history", style={"font-size": "14px"}),
+
+    ],
+    id="toast",
+    header=html.P([html.I(className="fa-solid fa-gear"), " Settings"]),
+    #body_style={"margin-bottom":"2rem"},
+    style={"height":"100%"}
+)
 
 def make_btn_fscreen(id :str):
     return dbc.Button(
@@ -226,7 +219,7 @@ def make_btn_fscreen(id :str):
                 )
 
 header = html.Div(
-    [title, loading_background_cache, download_btn, download_it, sensors_wrapper, dropdown_wrapper,  popovers_wrapper], className="section-header"
+    [title, download_btn, download_it, sensors_wrapper, dropdown_wrapper,  popovers_wrapper], className="section-header"
 )
 
 
@@ -249,7 +242,7 @@ def create_download_file(n_clicks):
         background=True,
         manager=background_callback_manager,
 )
-def background_cache(n_intervals):
+def background_cache(_):
     print("BACKGROUND CACHING")
     get_data_6months()
     print("END BACKGROUD CACHING")
@@ -364,17 +357,22 @@ def check_line_history(selected_station, history, res_state, het_state, volt_sta
     
 
 @callback(
-    [
-    Output("resistance-plot", "figure"),
+    [Output("resistance-plot", "figure"),
     Output("heater-plot", "figure"),
     Output("voltage-plot", "figure"),
     Output("bosch-plot", "figure")],
     
-    Input("selected-period", "value"),
+    [Input("selected-period", "value"),
     Input("selected-station", "value"),
     Input("yaxis-type", "value"),
     Input("btn_search_date", "n_clicks"),
     Input("check_history", "value"),
+
+    Input("resistance-plot", "relayoutData"),
+    #Input("heater-plot", "relayoutData"),
+    #Input("voltage-plot", "relayoutData"),
+    #Input("bosch-plot", "relayoutData")
+    ],
     
     [State("resistance-plot","figure"),
     State("heater-plot", "figure"),
@@ -384,9 +382,26 @@ def check_line_history(selected_station, history, res_state, het_state, volt_sta
     State("my-date-picker-range","end_date"),]
 
 )
-def update_plots(selected_period, selected_station, yaxis_type, btn_date, history, res_state, het_state, volt_state, bosch_state, start_date, end_date):
+def update_plots(selected_period, selected_station, yaxis_type,
+                 btn_date, history, res_relayout_data, res_state, het_state,
+                 volt_state, bosch_state, start_date, end_date):
     global LAST_CLICKED
-    
+
+    if het_state and volt_state and bosch_state and res_state:
+        try:
+            het_state['layout']["xaxis"]["range"] = [res_relayout_data['xaxis.range[0]'], res_relayout_data['xaxis.range[1]']]
+            het_state['layout']["xaxis"]["autorange"] = False
+            volt_state['layout']["xaxis"]["range"] = [res_relayout_data['xaxis.range[0]'], res_relayout_data['xaxis.range[1]']]
+            volt_state['layout']["xaxis"]["autorange"] = False
+            bosch_state['layout']["xaxis"]["range"] = [res_relayout_data['xaxis.range[0]'], res_relayout_data['xaxis.range[1]']]
+            bosch_state['layout']["xaxis"]["autorange"] = False
+            return res_state, het_state, volt_state, bosch_state
+        except (KeyError, TypeError):
+            het_state['layout']["xaxis"]["autorange"] = True
+            volt_state['layout']["xaxis"]["autorange"] = True
+            bosch_state['layout']["xaxis"]["autorange"] = True
+
+
     if "yaxis-type" == callback_context.triggered_id:    
         res_state["layout"]["yaxis"]["type"] = ('linear' if not yaxis_type else 'log')
         return res_state, het_state, volt_state, bosch_state
@@ -445,7 +460,6 @@ def update_plots(selected_period, selected_station, yaxis_type, btn_date, histor
             text="<br>Sensor Resistance (Ω)",
             xanchor="center",
             yanchor="top",
-            font_family="Sans serif",
         ),
         legend=dict(
             orientation="h",
@@ -494,7 +508,6 @@ def update_plots(selected_period, selected_station, yaxis_type, btn_date, histor
             text="Heater Resistance (Ω)",
             xanchor="center",
             yanchor="top",
-            font_family="Sans serif",
         ),
     )
     heater_plot.update_yaxes(title_text="", fixedrange=True)
@@ -538,7 +551,6 @@ def update_plots(selected_period, selected_station, yaxis_type, btn_date, histor
             text="Heater Voltage (V)",
             xanchor="center",
             yanchor="top",
-            font_family="Sans serif",
         ),
     )
     volt_plot.update_yaxes(title_text="", fixedrange=True)
@@ -616,7 +628,6 @@ def update_plots(selected_period, selected_station, yaxis_type, btn_date, histor
             text="Bosch sensor",
             xanchor="center",
             yanchor="top",
-            font_family="Sans serif",
         ),
     )
 
@@ -670,8 +681,6 @@ modal_chart = dbc.Modal(
             is_open=False,
         )
 
-
-
 #############
 # MODAL MAP #
 #############
@@ -686,6 +695,11 @@ modal_chart = dbc.Modal(
 def update_graph(is_open):
     if is_open:
 
+        """df = get_data_6months()
+        for station in stations:
+            station = saturated(station.split("-")[1].strip())
+            print(station)"""
+
         fig = go.Figure()
 
         fig.add_trace(go.Scattermapbox(
@@ -697,7 +711,7 @@ def update_graph(is_open):
                 color='green',    # Color of the dots
                 opacity=1,      # Make the dots fully visible
             ),
-            text=stations,  # Text to display on the dots
+            text=stations,
             hoverinfo='text',  # Remove hover information
              hoverlabel=dict(
                 font=dict(
@@ -789,7 +803,6 @@ def toggle_modal(n_open, clickData, is_open):
 layout = html.Div(
     [
         header,
-        html.Progress(id="progress_bar", value="0"),
         modal_chart,
         modal_map,
         dbc.Row(
@@ -858,7 +871,7 @@ layout = html.Div(
                     width=4),
                     dcc.Interval(
                         id='interval-component',
-                        interval=1000*120, # milliseconds
+                        interval=1000*604800, # milliseconds
                         n_intervals=0
                     )
             ],
