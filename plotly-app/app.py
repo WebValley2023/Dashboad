@@ -31,44 +31,43 @@ sidebar = html.Div(
                 dbc.NavLink(
                     [
                         html.I(className="fa-solid fa-user fa-2x"),
-                        html.Br(), 
+                        html.Br(),
                         html.Span("User"),
                     ],
                     href="/user",
                     active="exact",
-                    style={"text-align": "center"}
+                    style={"text-align": "center"},
                 ),
                 html.Hr(className="sidebar-hr"),
                 dbc.NavLink(
                     [
                         html.I(className="fa-solid fa-square-poll-vertical fa-2x"),
-                        html.Br(), 
-                        html.Span("Raw FBK Data")
+                        html.Br(),
+                        html.Span("Raw FBK Data"),
                     ],
                     href="/",
                     active="exact",
-                    style={"text-align": "center"}
-                    
+                    style={"text-align": "center"},
                 ),
                 dbc.NavLink(
                     [
                         html.I(className="fa-solid fa-chart-line fa-2x"),
-                        html.Br(), 
+                        html.Br(),
                         html.Span("Fitted FBK Data"),
                     ],
                     href="/fbk",
                     active="exact",
-                    style={"text-align": "center"}
+                    style={"text-align": "center"},
                 ),
                 dbc.NavLink(
                     [
                         html.I(className="fa-solid fa-smog fa-2x"),
-                        html.Br(), 
+                        html.Br(),
                         html.Span("APPA Data"),
                     ],
                     href="/appa",
                     active="exact",
-                    style={"text-align": "center"}
+                    style={"text-align": "center"},
                 ),
             ],
             vertical=True,
@@ -92,5 +91,4 @@ if __name__ == "__main__":
     if os.getenv("DEBUG"):
         app.run(debug=True)
     else:
-        # Production
         app.run_server(port=8051, host="0.0.0.0", debug=True)

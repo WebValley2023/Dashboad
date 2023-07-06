@@ -1,4 +1,3 @@
-from statistics import mean
 from dash import html, dcc, Input, Output, callback
 from .utils import utils
 
@@ -32,7 +31,11 @@ pollutants = [
     dict(label="Carbon Monoxide", value="CO"),
 ]
 
-title = html.Div("Fitted FBK Data", className="header-title", style={"text-align":"center","margin-bottom": "0.25rem"})
+title = html.Div(
+    "Fitted FBK Data",
+    className="header-title",
+    style={"text-align": "center", "margin-bottom": "0.25rem"},
+)
 
 download_btn = dbc.Button(
     [html.I(className="fa-solid fa-download"), " Download full data"],
@@ -72,11 +75,15 @@ dropdown = dcc.Dropdown(
     fbk_stations, id="selected-station", className="dropdown", value=fbk_stations[0]
 )
 dropdown_wrapper = html.Div(
-    [dropdown,], className="dropdownWrapper",
+    [
+        dropdown,
+    ],
+    className="dropdownWrapper",
 )
 
 header = html.Div(
-    [title, dropdown_wrapper, gas_btns, download_btn, download_it], className="section-header"
+    [title, dropdown_wrapper, gas_btns, download_btn, download_it],
+    className="section-header",
 )
 
 graph_selectors = html.Div(
@@ -86,7 +93,7 @@ graph_selectors = html.Div(
                 id="selected-period",
                 options=["last 24h", "last week", "last month", "last year", "all"],
                 value="last week",
-                className="dropdown"
+                className="dropdown",
             ),
             className="dropdownWrapper",
         ),
@@ -192,7 +199,7 @@ def update_comparison_graph(
             "xanchor": "left",
             "orientation": "h",
             "bgcolor": "rgba(0,0,0,0)",
-        }
+        },
     )
     fig.update_yaxes(title_text="Value", fixedrange=True)
     fig.update_layout(modebar=dict(bgcolor="#ffffff"))
@@ -257,6 +264,15 @@ def get_mean(
 
 
 layout = html.Div(
-    [header, html.Div([comparison_graph, graph_selectors,], className="fbk-main-plot")],
+    [
+        header,
+        html.Div(
+            [
+                comparison_graph,
+                graph_selectors,
+            ],
+            className="fbk-main-plot",
+        ),
+    ],
     className="section fullHeight",
 )

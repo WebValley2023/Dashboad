@@ -1,13 +1,16 @@
 import pandas as pd
 import psycopg2
 
+
 def load_data_from_psql(query: str, columns=None, **kwargs) -> pd.DataFrame:
     # todo: reuse connection maybe?
     with psycopg2.connect(
-        database="webvalley2022", user='postgres',
+        database="webvalley2022",
+        user="postgres",
         # pay attention that the password may be wrong
-        password='postgres',
-        host='localhost', port='5432'
+        password="postgres",
+        host="localhost",
+        port="5432",
     ) as conn:
         with conn.cursor() as curs:
             curs.execute(query)
