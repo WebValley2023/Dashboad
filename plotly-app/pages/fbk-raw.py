@@ -197,7 +197,7 @@ download_btn = dbc.Button(
 download_it = dcc.Download(id="download-fbk-raw")
 
 dropdown_period = dcc.Dropdown(
-    periods, id="selected-period", className="dropdown", value=periods[0]
+    periods, id="selected-period", className="dropdown", value=periods[len(periods)-1]
 )
 
 dropdown_wrapper = html.Div(
@@ -854,8 +854,9 @@ def update_graph(is_open):
 
 
 # MODAL #
-
-df = pd.read_csv("/home/wvuser/challenge-4/Dashboard/plotly-app/assets/map.json")
+absolute_path = os.path.dirname(__file__)
+new_path = absolute_path.replace("pages", "assets")
+df = pd.read_csv(new_path+"/map.json")
 modal_map = html.Div(
     [
         dbc.Button("Open map", id="open", n_clicks=0, className=".btn"),

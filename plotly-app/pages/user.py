@@ -32,7 +32,7 @@ pollutants = [
 ]
 df = load_data_from_psql(
     """select stazione, inquinante, ts, valore from 
-    appa_data where ts >= NOW() - interval '1 month';"""
+    appa_data where ts >= NOW() - interval '1 week';"""
 )
 # df_stations = {
 #     s: {
@@ -464,9 +464,9 @@ layout = html.Div(
                             dbc.Row(
                                 [toast_pm, html.Br()], className="vertical-spacing"
                             ),
-                            dbc.Row(
-                                [toast_wd, html.Br()], className="vertical-spacing"
-                            ),
+                            #dbc.Row(
+                            #    [toast_wd, html.Br()], className="vertical-spacing"
+                            #),
                         ],
                     ),
                     width=3,

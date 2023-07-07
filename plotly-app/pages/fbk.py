@@ -198,13 +198,11 @@ comparison_graph = html.Div(
                 "displayModeBar": False,
                 "displaylogo": False,
             },
+            className="pretty_container",
         ),
         graph_selectors,
-        dcc.Graph(
-            id="test-graph",
-            style=dict(height="50vh"),
-        ),
-    ]
+    ],
+   
 )
 
 
@@ -261,6 +259,8 @@ def update_comparison_graph(
     test = raw_data.drop('ts',axis=1)
     
     y_pred=pipeline2.predict(test.values)
+    
+    #np.savetxt('data.csv', y_pred, delimiter=',')
 
     appa_data = load_data_from_psql(querys.q_custom_appa(start=start, end=end))
     
@@ -278,6 +278,8 @@ def update_comparison_graph(
     new_df= new_df.set_index('ts').resample('1H').mean().reset_index()
     data = appa_data[(appa_data['stazione'] == 'Parco S. Chiara') & (appa_data['inquinante'] == selected_pollutant) & (['avg'])] 
     df = new_df.merge(data[['min','avg']], left_on='ts', right_on='min', how="left").drop('min',axis=1)
+    
+    #df.to_csv('export_dataframe.csv', header=True, )
     
     fig.add_trace(
         go.Scatter(
@@ -303,6 +305,7 @@ def update_comparison_graph(
     fig.update_layout(
         margin=dict(l=5, r=5, t=20, b=0),
         plot_bgcolor="white",
+        paper_bgcolor="rgba(0,0,0,0)",
         title=dict(
             x=0.5,
             text=title,
@@ -310,6 +313,10 @@ def update_comparison_graph(
             xanchor="center",
             yanchor="top",
         ),
+        legend={
+            "bgcolor": "rgba(0,0,0,0)",
+        },
+        modebar=dict(bgcolor="#ffffff")
     )
     fig.update_yaxes(title_text="Value", fixedrange=True)
 
@@ -373,6 +380,7 @@ def get_mean(
 
 
 layout = html.Div(
-    [header, html.Div([comparison_graph], className="fbk-main-plot")],
+    [header, html.Div([comparison_graph], className="")],
     className="section fullHeight",
+    style={'height':'100vh'}
 )

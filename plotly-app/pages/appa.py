@@ -737,7 +737,7 @@ periods = [
 ]
 
 dropdown_period = dcc.Dropdown(
-    periods, id="selected-appa-period", className="dropdown", value=periods[0]
+    periods, id="selected-appa-period", className="dropdown", value=periods[len(periods)-2]
 )
 years = [y for y in range(date.today().year - 10, date.today().year + 1)]
 years.append("All years")
