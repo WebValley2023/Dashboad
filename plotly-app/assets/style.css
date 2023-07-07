@@ -255,3 +255,59 @@ html {
 .fullscreen-modal{
   max-width: 90%;
 }
+
+#modal-map{
+  max-width: 900rem;
+  margin: 100px;
+  position: fixed;
+  top: 50%; 
+  left: 50%;
+  transform: translate(-60%, -60%);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.vertical-spacing {
+  margin: 2rem;
+  padding-top: 2.5rem;
+  height: 29rem;
+}
+
+.mb-3{
+  margin: 1.3rem;
+  padding-top: 1rem;
+  
+
+}
+
+
+.radio-group{
+  margin: 1rem;
+  padding-top: 1rem;
+
+}
+
+.description-box{
+  margin: 4.3rem;
+  font-size: 18px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 
+  'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+
+}
+
+.section-header{
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 
+  'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+
+}
+
+.progress-container{
+  margin: 1.3rem;
+  padding-top: 1rem;
+
+}
