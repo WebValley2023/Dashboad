@@ -22,7 +22,7 @@ def get_data_day(start, end) -> pd.DataFrame:
     #print(fbk_data)
     return (fbk_data)
 
-def testnewdf(start, end):
+def testnewdf(start, end, node=1):
     
     return f"""WITH sensor_data AS (
     SELECT
@@ -39,7 +39,7 @@ def testnewdf(start, end):
         LEFT JOIN packet p ON p.id = pd.packet_id
         LEFT JOIN sensor s ON s.id = pd.sensor_id
         LEFT JOIN node n ON n.id = p.node_id
-    where p.sensor_ts BETWEEN '{start}' AND '{end}' and n.id = 1
+    where p.sensor_ts BETWEEN '{start}' AND '{end}' and n.id = {node}
 )
 SELECT
     ts,
@@ -120,11 +120,17 @@ pollutants = [
     dict(label="Sulfur Dioxide", value="SO2"),
 ]
 
-title = html.Div("Fitted FBK Data", className="header-title")
+title = html.Div("Fitted FBK Data", className="header-title", style={"text-align": "center", "margin-bottom": "0.25rem"},)
 
 # build dropdown of stations
-dropdown = dcc.Dropdown(
+dropdown_station = dcc.Dropdown(
     fbk_stations, id="selected-station", className="dropdown", value=fbk_stations[0]
+)
+dropdown_wrapper = html.Div(
+    [
+        dropdown_station,
+    ],
+    className="dropdownWrapper",
 )
 
 download_btn = dbc.Button(
@@ -134,6 +140,57 @@ download_btn = dbc.Button(
     class_name="download-btn",
 )
 download_it = dcc.Download(id="download-fbk-fitted")
+
+#periods = ["last 6 months", "last month", "last week", "last day", "last hour"]
+periods = [
+    {"label" : "last 6 months", "value" : "last 6 months"},
+    {"label" : "last month", "value" : "last month"},
+    {"label" : "last week",  "value" : "last week"},
+    {"label" : "last day",   "value" : "last day"},
+    {"label" : "last hour",  "value" : "last hour", 'disabled': True},
+]
+
+dropdown_period = dcc.Dropdown(
+    periods, id="selected-period", className="dropdown", value='last day'
+)
+
+date_range = dcc.DatePickerRange(
+    id="my-date-picker-range",
+    month_format="MMMM Y",
+    start_date_placeholder_text="Start Period",
+    end_date_placeholder_text="End Period",
+    clearable=True,
+)
+
+search = dbc.Button(
+    children=html.I(className="fas fa-search"),
+    id="btn_search_date",
+    color="secondary",
+    outline=True,
+    className="me-1",
+    size="sm",
+    style={"width": "100%", "border": "1px solid #ccc"},
+)
+
+toast = dbc.Toast(
+    [
+        html.H4("Filter by:", style={"font-weight": "bold"}),
+        dropdown_period,
+        date_range,
+        search,
+        daq.ToggleSwitch(
+            id="toggle-comparison",
+            label="Compare with APPA",
+            color="#0d6efd",
+            className="ml-auto toggle",
+            value=True,
+        ),
+    ],
+    id="toast",
+    header=html.P([html.I(className="fa-solid fa-gear"), " Settings"]),
+    # body_style={"margin-bottom":"2rem"},
+    style={"height": "100%"},
+)
 
 
 @callback(
@@ -157,11 +214,11 @@ gas_btns = html.Div(
         options=pollutants,
         value="O3",
     ),
-    className="radio-group",
+    className="radio-group dropdownWrapper",
 )
 
 header = html.Div(
-    [title, dropdown, download_btn, download_it, gas_btns], className="section-header"
+    [title, dropdown_wrapper, download_btn, download_it, gas_btns], className="section-header"
 )
 
 graph_selectors = html.Div(
@@ -170,7 +227,7 @@ graph_selectors = html.Div(
             [
                 "Display: ",
                 dcc.Dropdown(
-                    id="selected-period",
+                    id="selected-period-1",
                     options=["March","April", "May", "June", "July"],
                     className="dropdown",
                     value="April",
@@ -205,10 +262,27 @@ comparison_graph = html.Div(
    
 )
 
+def period_to_interval(period):
+    now = datetime.now() + timedelta(days=1)
+    if period == "last hour":
+        pass
+    elif period == "last day":
+        day = datetime.now() - timedelta(days=1)
+    elif period == "last week":
+        day = datetime.now() - timedelta(days=7)
+    elif period == "last month":
+        day = datetime.now() - timedelta(days=30)
+    elif period == "last 6 months":
+        day = datetime.now() - timedelta(days=180)
+    
+    return day.date(), now.date()
+
+
 
 @callback(
     Output("comparison-graph", "figure"),
     Input("selected-station", "value"),
+    
     Input("selected-fbk-pollutant", "value"),
     Input("toggle-comparison", "value"),
     Input("selected-period", "value"),
@@ -248,8 +322,12 @@ def update_comparison_graph(
     'November': ('2023-11-01', '2023-11-30'),
     'December': ('2023-12-01', '2023-12-31')
     }
-    start = months[selected_period][0]
-    end = months[selected_period][1]
+    
+    
+    #start = months[selected_period][0]
+    #end = months[selected_period][1]
+    
+    start, end = period_to_interval(selected_period)
     
     raw_data = get_data_day(start, end)
     
@@ -283,7 +361,7 @@ def update_comparison_graph(
     
     fig.add_trace(
         go.Scatter(
-            x=df["ts"], y=df[selected_pollutant], mode="lines+markers", name="FBK"
+            x=df["ts"], y=df[selected_pollutant], mode="lines+markers", name="FBK", line=dict(color="red")
         )
     )
 
@@ -297,6 +375,7 @@ def update_comparison_graph(
                 y=df['avg'],
                 mode="lines+markers",
                 name="APPA",
+                line=dict(color="blue")
             )
         )
 
@@ -380,7 +459,35 @@ def get_mean(
 
 
 layout = html.Div(
-    [header, html.Div([comparison_graph], className="")],
+    [header, 
+     dbc.Row(
+            [
+                dbc.Col(
+                    dcc.Graph(
+                        id="comparison-graph",
+                        config={
+                            "displayModeBar": False,
+                            "displaylogo": False,
+                        },
+                        style={
+                            "height": "55vh",
+                        },
+                        className="pretty_container",
+                    ),
+                    style={"width": "80%"},
+                ),
+                dbc.Col(
+                    [
+                        toast,
+                    ],
+                    width=1,
+                    style={"min-width": "200px"},
+                ),
+            ]
+        ),
+     
+    ],
     className="section fullHeight",
     style={'height':'100vh'}
 )
+

@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import numpy as np
 
 
-dash.register_page(__name__, path="/user")
+dash.register_page(__name__, path="/disclaimer")
 description_box = html.Div(id="description-box", className="description-box")
 
 # rand = random.seed(57)
@@ -32,19 +32,12 @@ pollutants = [
 ]
 df = load_data_from_psql(
     """select stazione, inquinante, ts, valore from 
-    appa_data where ts >= NOW() - interval '1 week';"""
+    appa_data where ts >= NOW() - interval '7 day';"""
 )
-# df_stations = {
-#     s: {
-#         p: df[(df.stazione == s) & (df.inquinante == p)].copy() for p in df[df.stazione == s].inquinante.drop_duplicates().values
-#     }
-#     for s in df.stazione.drop_duplicates().values
-# }
 
 df_s_p = df.sort_values(["stazione", "inquinante", "ts"]).set_index(
     ["stazione", "inquinante"]
 )
-# print(df_s_p)
 
 pollutants_bars = html.Div(
     [
@@ -680,7 +673,7 @@ def pm10_value(selected_location):
         return 0, f"PM 10 -> not measured"
 
 
-@callback(
+"""@callback(
     Output("temp-progress", "value"),
     Input("location-dropdown", "value"),
 )
@@ -709,3 +702,4 @@ def press_value(selected_pollutant, selected_location):
     station_df_key = station_labels_to_df_keys[selected_location]
     df_graph = df_s_p.loc[(station_df_key, pollutants[3]["value"])]
     return df_graph.valore.mean() + random.randint(5, 20)
+"""

@@ -416,6 +416,7 @@ LAST_CLICKED = None
     Input("btn_search_date", "n_clicks"),
     Input("check_years", "value"),
     prevent_initial_call=True,
+    suppress_callback_exceptions=True,
 )
 def update_main_plot(
     selected_appa_station: str,
@@ -659,6 +660,7 @@ translate = {
     Input("selected-appa-station", "value"),
     Input("selected-weekday-period", "value"),
     prevent_initial_call=True,
+    suppress_callback_exceptions=True,
 )
 def create_card_limit(pollutant, station, year):
     df = get_all_data()
@@ -747,7 +749,7 @@ dropdown_weekday = dcc.Dropdown(
 
 title = html.Div("APPA Data", className="header-title", style={"text-align": "center"})
 dropdown = dcc.Dropdown(
-    stations, id="selected-appa-station", className="dropdown", value=stations[0]
+    stations, id="selected-appa-station", className="dropdown", value="Parco S. Chiara"
 )
 download_btn = dbc.Button(
     [html.I(className="fa-solid fa-download"), " Download full data"],

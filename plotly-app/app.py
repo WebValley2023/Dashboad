@@ -75,7 +75,7 @@ sidebar = html.Div(
                         html.Br(), 
                         html.Span("Disclaimer"), 
                     ], 
-                    href="/user", 
+                    href="/disclaimer", 
                     active="exact", 
                     style={"text-align": "center"}, 
                 ), 

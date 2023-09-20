@@ -66,13 +66,18 @@ html {
 .dropdownWrapper {
   display: flex;
   flex-flow: row;
-  justify-content: space-around;
+  justify-content: center;
   margin: 0 0 20px 0;
 }
 
-.dropdownWrapper > * {
+.dropdownWrapper > #selected-station {
   width: 45%;
 }
+
+.dropdownWrapper > #selected-appa-station {
+  width: 45%;
+}
+
 /*
 .DateRangePicker{
   float: right;

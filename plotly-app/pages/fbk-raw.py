@@ -82,7 +82,7 @@ def get_data_6months() -> pd.DataFrame:
     fbk_data = load_data_from_psql(querys.query_6moths_avg_node_1)
     fbk_data_1 = load_data_from_psql(querys.query_6moths_avg_node_6)
     fbk = pd.concat([fbk_data, fbk_data_1])
-    return utils.filter_fbk_data(fbk)
+    return utils.filter_fbk_data(fbk)\
 
 
 def cache_fbk_data(selected_period: str) -> pd.DataFrame:
@@ -147,7 +147,7 @@ def saturated(station):
             d[s] = True
         else:
             d[s] = False
-    print(d)
+    #print(d)
     return d
 
 
@@ -188,6 +188,32 @@ search = dbc.Button(
     style={"width": "100%", "border": "1px solid #ccc"},
 )
 
+modal_map = html.Div(
+    [
+        dbc.Button( children=html.I(className="fa-solid fa-map fa-xl"), 
+                    id="open", 
+                    n_clicks=0, 
+                    color="secondary",
+                    outline=True,
+                    className="me-1",
+                    size="sm",
+                    style={"border": "1px solid #ccc", "height":"100%","height":"100%","margin": "0 0 0 10px", "float":"left"},),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(
+                    dbc.ModalTitle("Click a point to see the data"),
+                    className="modal-header",
+                ),
+                dbc.ModalBody([dcc.Graph(id="figure"), html.Div(id="click-output")]),
+            ],
+            id="modal-map",
+            is_open=True,
+            centered=True,
+            size="lg",
+        ),
+    ]
+)
+
 download_btn = dbc.Button(
     [html.I(className="fa-solid fa-download"), " Download full data"],
     color="primary",
@@ -197,12 +223,12 @@ download_btn = dbc.Button(
 download_it = dcc.Download(id="download-fbk-raw")
 
 dropdown_period = dcc.Dropdown(
-    periods, id="selected-period", className="dropdown", value=periods[len(periods)-1]
+    periods, id="selected-period", className="dropdown", value=periods[len(periods)-2]
 )
 
 dropdown_wrapper = html.Div(
     [
-        dropdown_station,
+        dropdown_station, modal_map,
     ],
     className="dropdownWrapper",
 )
@@ -470,9 +496,9 @@ def update_plots(
     end_date,
 ):
     global LAST_CLICKED
-
-    if het_state and volt_state and bosch_state and res_state:
+    if het_state and volt_state and bosch_state and res_state and "resistance-plot" == callback_context.triggered_id:
         try:
+            print("trigger 1 ")
             het_state["layout"]["xaxis"]["range"] = [
                 res_relayout_data["xaxis.range[0]"],
                 res_relayout_data["xaxis.range[1]"],
@@ -489,10 +515,13 @@ def update_plots(
             ]
             bosch_state["layout"]["xaxis"]["autorange"] = False
             return res_state, het_state, volt_state, bosch_state
-        except (KeyError, TypeError):
+        except Exception as e:
+            print(e)
+            print("trigger 2 ")
             het_state["layout"]["xaxis"]["autorange"] = True
             volt_state["layout"]["xaxis"]["autorange"] = True
             bosch_state["layout"]["xaxis"]["autorange"] = True
+            return res_state, het_state, volt_state, bosch_state
 
     if "yaxis-type" == callback_context.triggered_id:
         res_state["layout"]["yaxis"]["type"] = "linear" if not yaxis_type else "log"
@@ -523,6 +552,7 @@ def update_plots(
 
     # ---------------------------RESISTANCE PLOT---------------------------
 
+    
     resistance_plot = go.Figure()
 
     # use hour as X axis
@@ -752,8 +782,8 @@ def update_plots(
     ],
 )
 def toggle_modal(
-    heater_fs, volt_fs, bosch_fs, is_open, heater_plot, volt_plot, bosch_plot
-):
+    heater_fs, volt_fs, bosch_fs, is_open, heater_plot, volt_plot, bosch_plot):
+    
     if heater_fs or volt_fs or bosch_fs:
         if "heater-fs" == callback_context.triggered_id:
             heater_plot = go.Figure(heater_plot)
@@ -857,24 +887,7 @@ def update_graph(is_open):
 absolute_path = os.path.dirname(__file__)
 new_path = absolute_path.replace("pages", "assets")
 df = pd.read_csv(new_path+"/map.json")
-modal_map = html.Div(
-    [
-        dbc.Button("Open map", id="open", n_clicks=0, className=".btn"),
-        dbc.Modal(
-            [
-                dbc.ModalHeader(
-                    dbc.ModalTitle("Click a point to see the data"),
-                    className="modal-header",
-                ),
-                dbc.ModalBody([dcc.Graph(id="figure"), html.Div(id="click-output")]),
-            ],
-            id="modal-map",
-            is_open=True,
-            centered=True,
-            size="lg",
-        ),
-    ]
-)
+
 
 
 @callback(
@@ -912,7 +925,7 @@ layout = html.Div(
     [
         header,
         modal_chart,
-        modal_map,
+        
         dbc.Row(
             [
                 dbc.Col(
